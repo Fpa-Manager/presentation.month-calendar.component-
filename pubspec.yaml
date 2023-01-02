@@ -1,0 +1,28 @@
+name: month_calendar
+description: A new Flutter package project.
+version: 0.0.1
+homepage: ''
+publish_to: 'none'
+
+environment:
+  sdk: '>=2.18.5 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  system:
+    path: ../fpa.manager.client.system
+
+  mytheme:
+    path: ../fpa.manager.client.presentation.theme
+
+  phosphor_flutter: ^1.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
