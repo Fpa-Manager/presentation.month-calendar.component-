@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mytheme/theme.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:system/system.dart';
 
 class MonthSlider extends StatelessWidget {
   final int year;
@@ -65,7 +66,7 @@ class MonthSlider extends StatelessWidget {
             ),
           ),
           Text(
-            "${monthName[current.month]} ${current.year}",
+            current.toFormatString(pattern: DataFormatPattern.MMYY).toUpperFirstLetter(),
             style:
                 Theme.of(context).textTheme.headline4?.copyWith(fontSize: 36),
           ),

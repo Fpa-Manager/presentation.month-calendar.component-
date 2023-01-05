@@ -29,7 +29,7 @@ class MonthGridBuilder {
     for (var i = 0; i < monthDayCount; i++) {
       var currentMonthDate =
           DateTime(_date.year, _date.month, _date.day + i, _date.hour, _date.minute);
-      var isWeekEnd = currentMonthDate.weekday == 6 || currentMonthDate.weekday == 7;
+      bool isWeekEnd = currentMonthDate.weekday == 6 || currentMonthDate.weekday == 7;
 
       bool isHoliday = false;
       if (_holidays != null) {
@@ -41,13 +41,12 @@ class MonthGridBuilder {
         }
       }
 
-      //var inHolidays = _holidays.any((element) => element.isSameDate(currentMonthDate));
-      if (isHoliday) isWeekEnd = true;
-
       var cell = GridCell(
           date: DateTime.fromMillisecondsSinceEpoch(currentMonthDate.millisecondsSinceEpoch),
           isInMonth: true,
-          isWeekend: isWeekEnd);
+          isWeekend: isWeekEnd,
+          isHoliday: isHoliday
+      );
 
       _dates.add(cell);
     }
@@ -75,14 +74,14 @@ class MonthGridBuilder {
 
 class GridCell {
   final bool isInMonth;
-  final bool? isWeekend;
-  //final bool? isHoliday;
+  final bool isWeekend;
+  final bool isHoliday;
   final DateTime date;
 
   const GridCell({
     required this.date,
     required this.isInMonth,
-    this.isWeekend,
-    //this.isHoliday
+    this.isWeekend = false,
+    this.isHoliday = false
   });
 }

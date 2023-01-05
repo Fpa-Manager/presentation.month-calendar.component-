@@ -179,7 +179,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                 child: Container(),
               ),
             ),
-            _CalendarDay(
+            _Cell(
                 cell: cell,
                 child: chl.any((element) => element.date.isSameDate(cell.date))
                     ? chl.firstWhere(
@@ -213,56 +213,66 @@ class _MonthCalendarState extends State<MonthCalendar> {
 
     return LayoutBuilder(builder: (ctx, monthConstraints) {
       widgetHeight = monthConstraints.maxHeight;
-      return ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12.0),
-          topRight: Radius.circular(12.0),
+      return Theme(
+        data: Theme.of(context).copyWith(
+          extensions: [MontCalendarTheme.light, MontCalendarTheme.dark]
         ),
-        child: Table(
-          border: widget._border,
-          columnWidths: <int, TableColumnWidth>{
-            for (var indx in Iterable<int>.generate(6))
-              indx: const FlexColumnWidth()
-          },
-          defaultVerticalAlignment: TableCellVerticalAlignment.top,
-          children: generateTableRows(),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12.0),
+            topRight: Radius.circular(12.0),
+          ),
+          child: Table(
+            border: widget._border,
+            columnWidths: <int, TableColumnWidth>{
+              for (var indx in Iterable<int>.generate(6))
+                indx: const FlexColumnWidth()
+            },
+            defaultVerticalAlignment: TableCellVerticalAlignment.top,
+            children: generateTableRows(),
+          ),
         ),
       );
     });
   }
 }
 
-class _CalendarDay extends StatelessWidget {
+class _Cell extends StatelessWidget {
   final Widget? child;
 
-  const _CalendarDay({
+  const _Cell({
     required this.cell,
     this.child,
   });
 
   final GridCell cell;
 
+  final ColorFilter _greyscale = const ColorFilter.matrix(<double>[
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0,      0,      0,      1, 0,
+  ]);
+
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         if (child != null)
-          () {
-            return _TableCellContent(
+             _Content(
                 child: cell.isInMonth &&
                         cell.date.isAfter(
                             DateTime(DateTime.now().year, DateTime.now().month))
                     ? child
-                    : Theme(
-                        data: Theme.of(context)
-                            .copyWith(extensions: <ThemeExtension<dynamic>>[
-                          MontCalendarTheme.inactive,
-                        ]),
-                        child: child!));
-          }(),
+                    : ColorFiltered(
+                    colorFilter: _greyscale,
+                    child: child
+                ),
+             ),
         Align(
           alignment: Alignment.bottomRight,
-          child: _TableCellDate(
+          child: _Date(
             cell: cell,
           ),
         ),
@@ -271,10 +281,10 @@ class _CalendarDay extends StatelessWidget {
   }
 }
 
-class _TableCellDate extends StatelessWidget {
+class _Date extends StatelessWidget {
   final GridCell cell;
 
-  const _TableCellDate({required this.cell});
+  const _Date({required this.cell});
 
   bool isCurrentDay(DateTime date) => date.isSameDate(DateTime.now());
 
@@ -282,7 +292,7 @@ class _TableCellDate extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topRight,
-      padding: const EdgeInsets.only(top: 2, right: 2),
+      padding: const EdgeInsets.only(top: 5, right: 5),
       child: Container(
         alignment: Alignment.center,
         width: 30,
@@ -290,14 +300,13 @@ class _TableCellDate extends StatelessWidget {
         decoration: isCurrentDay(cell.date) && cell.isInMonth
             ? BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color:
-                    Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor)
+                color: Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor)
             : null,
         child: Text(
           cell.date.day.toString(),
           style: cell.isInMonth == false
                   ? TextStyle(color: Colors.grey.shade400, fontSize: 14)
-                  : cell.isWeekend != null && cell.isWeekend!
+                  : cell.isWeekend || cell.isHoliday!
                     ? const TextStyle( color: Colors.red, fontSize: 18)
                     : const TextStyle( color: Colors.black, fontSize: 18),
         ),
@@ -306,10 +315,10 @@ class _TableCellDate extends StatelessWidget {
   }
 }
 
-class _TableCellContent extends StatelessWidget {
+class _Content extends StatelessWidget {
   final Widget? child;
 
-  const _TableCellContent({this.child});
+  const _Content({this.child});
 
   @override
   Widget build(BuildContext context) {
