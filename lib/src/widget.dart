@@ -3,8 +3,9 @@ import 'package:month_calendar/src/theme.dart';
 import 'package:mytheme/component/hovered_container.dart';
 import 'package:mytheme/component/mouse_event.dart';
 import 'package:system/system.dart' as system;
-import 'month_calendar_model_mixin.dart';
-import 'month_grid_builder.dart';
+import 'cell_widget.dart';
+import 'model/month_calendar_model_mixin.dart';
+import 'model/month_grid_builder.dart';
 
 class MonthCalendar extends StatefulWidget implements MouseEvent {
   final MonthCalendarHeader? _header;
@@ -115,14 +116,9 @@ class _MonthCalendarState extends State<MonthCalendar> {
     List<Widget> generateDays(List<GridCell> cells) {
       List<Widget> array = [];
 
-      Color weekendsBorderColor() {
-        if (Theme.of(context).extension<MontCalendarTheme>() != null) {
-          return Theme.of(context).extension<MontCalendarTheme>()!.currentDayColor;
-        }
-        else {
-          return Theme.of(context).colorScheme.surface;
-        }
-      }
+      Color weekendsBorderColor() =>
+          Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor
+            ?? Theme.of(context).colorScheme.surface;
 
       BoxDecoration? getCellDayDecoration(GridCell cell) {
         var decoration = const BoxDecoration();
@@ -148,44 +144,19 @@ class _MonthCalendarState extends State<MonthCalendar> {
             Container(
               decoration: getCellDayDecoration(cell),
               child: HoveredContainer(
-                // hover: this.widget.hover ??
-                //     HoverEffect(
-                //         decoration: BoxDecoration(
-                //             color:
-                //                 Theme.of(context).colorScheme.surfaceVariant,
-                //             border: Border(
-                //               bottom: BorderSide(
-                //                 color: Theme.of(context)
-                //                     .extension<ThemeColors>()!
-                //                     .currentDayColor,
-                //                 width: 2.0,
-                //               ),
-                //             ))),
+                //opaque: true,
                 tap: this.widget.tap ??
                     TapEffect(
                         onPressed: () => selectDay(cell.date),
-                        // decoration: BoxDecoration(
-                        //     color: const Color(0xFFF4F4F4),
-                        //     // border: Border(
-                        //     //   bottom: BorderSide(
-                        //     //     color: Theme.of(context)
-                        //     //         .extension<ThemeColors>()!
-                        //     //         .currentDayColor,
-                        //     //     width: 2.0,
-                        //     //   ),
-                        //     // )
-                        // )
                     ),
-                child: Container(),
+                child: Cell(
+                    cell: cell,
+                    child: chl.any((element) => element.date.isSameDate(cell.date))
+                        ? chl.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
+                        : null),
               ),
             ),
-            _Cell(
-                cell: cell,
-                child: chl.any((element) => element.date.isSameDate(cell.date))
-                    ? chl.firstWhere(
-                            (element) => element.date.isSameDate(cell.date))
-                        as Widget
-                    : null)
+
           ]),
         );
 
@@ -215,7 +186,10 @@ class _MonthCalendarState extends State<MonthCalendar> {
       widgetHeight = monthConstraints.maxHeight;
       return Theme(
         data: Theme.of(context).copyWith(
-          extensions: [MontCalendarTheme.light, MontCalendarTheme.dark]
+          extensions: [MontCalendarTheme.light],
+          colorScheme: Theme.of(context).colorScheme.copyWith(
+            surface: Colors.brown
+          )
         ),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
@@ -237,113 +211,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
   }
 }
 
-class _Cell extends StatelessWidget {
-  final Widget? child;
 
-  const _Cell({
-    required this.cell,
-    this.child,
-  });
-
-  final GridCell cell;
-
-  final ColorFilter _greyscale = const ColorFilter.matrix(<double>[
-    0.2126, 0.7152, 0.0722, 0, 0,
-    0.2126, 0.7152, 0.0722, 0, 0,
-    0.2126, 0.7152, 0.0722, 0, 0,
-    0,      0,      0,      1, 0,
-  ]);
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (child != null)
-             _Content(
-                child: cell.isInMonth &&
-                        cell.date.isAfter(
-                            DateTime(DateTime.now().year, DateTime.now().month))
-                    ? child
-                    : ColorFiltered(
-                    colorFilter: _greyscale,
-                    child: child
-                ),
-             ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: _Date(
-            cell: cell,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Date extends StatelessWidget {
-  final GridCell cell;
-
-  const _Date({required this.cell});
-
-  bool isCurrentDay(DateTime date) => date.isSameDate(DateTime.now());
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.topRight,
-      padding: const EdgeInsets.only(top: 5, right: 5),
-      child: Container(
-        alignment: Alignment.center,
-        width: 30,
-        height: 30,
-        decoration: isCurrentDay(cell.date) && cell.isInMonth
-            ? BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor)
-            : null,
-        child: Text(
-          cell.date.day.toString(),
-          style: cell.isInMonth == false
-                  ? TextStyle(color: Colors.grey.shade400, fontSize: 14)
-                  : cell.isWeekend || cell.isHoliday!
-                    ? const TextStyle( color: Colors.red, fontSize: 18)
-                    : const TextStyle( color: Colors.black, fontSize: 18),
-        ),
-      ),
-    );
-  }
-}
-
-class _Content extends StatelessWidget {
-  final Widget? child;
-
-  const _Content({this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.bottomLeft,
-      padding: const EdgeInsets.only(left: 15, bottom: 10, top: 1),
-      child: Column(
-        children: [
-          const Spacer(
-            flex: 3,
-          ),
-          if (child == null)
-            const Spacer(
-              flex: 4,
-            )
-          else
-            Expanded(
-              flex: 4,
-              child: child!,
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 class MonthCalendarHeader {
   final double? height;
