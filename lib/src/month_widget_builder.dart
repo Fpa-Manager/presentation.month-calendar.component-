@@ -3,9 +3,10 @@ import 'package:month_calendar/src/theme.dart';
 import 'package:mytheme/component/hovered_container.dart';
 import 'package:mytheme/component/mouse_event.dart';
 import 'package:system/system.dart' as system;
-import '../cell_widget.dart';
-import 'month_calendar_model_mixin.dart';
-import 'month_grid_builder.dart';
+import 'cell_widget.dart';
+import 'model/month_calendar_header.dart';
+import 'model/month_calendar_model_mixin.dart';
+import 'model/month_grid_builder.dart';
 
 class MonthBody extends StatefulWidget implements MouseEvent {
   final MonthCalendarHeaderBody? _header;
@@ -223,13 +224,4 @@ class _MonthBodyState extends State<MonthBody> {
       }),
     );
   }
-}
-
-
-
-class MonthCalendarHeaderBody {
-  final double? height;
-  final Color? background;
-
-  MonthCalendarHeaderBody({this.height = 20, this.background});
 }

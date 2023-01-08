@@ -34,10 +34,6 @@ class MontCalendarTheme extends ThemeExtension<MontCalendarTheme> {
     currentDayColor: Color.fromARGB(255, 255, 181, 185),
   );
 
-  static get inactive => const MontCalendarTheme(
-    currentDayColor: Color.fromARGB(255, 255, 181, 185),
-  );
-
   static get dark => const MontCalendarTheme(
       currentDayColor: Colors.green);
 }

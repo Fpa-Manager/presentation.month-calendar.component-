@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:mytheme/theme.dart';
-import 'month_calendar_model_mixin.dart';
-import 'month_grid_builder.dart';
+import 'model/month_calendar_header.dart';
+import 'model/month_calendar_model_mixin.dart';
+import 'model/month_grid_builder.dart';
 import 'month_widget_builder.dart';
+import 'theme.dart';
 
 class MonthGrid extends StatefulWidget implements MouseEvent {
   final MonthCalendarHeaderBody? _header;
@@ -48,7 +50,12 @@ class _MonthGridState extends State<MonthGrid> {
     return LayoutBuilder(builder: (context, monthConstraints) {
       widgetHeight = monthConstraints.maxHeight;
       return Theme(
-        data: Theme.of(context),
+        data: Theme.of(context).copyWith(
+          extensions: [MontCalendarTheme.light],
+          colorScheme: Theme.of(context).colorScheme.copyWith(
+            surface: Colors.brown
+          )
+        ),
         child: MonthBody(
           height: widgetHeight,
           selectedDate: widget.selectedDate,

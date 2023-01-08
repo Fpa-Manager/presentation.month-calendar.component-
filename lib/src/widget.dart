@@ -4,6 +4,7 @@ import 'package:mytheme/component/hovered_container.dart';
 import 'package:mytheme/component/mouse_event.dart';
 import 'package:system/system.dart' as system;
 import 'cell_widget.dart';
+import 'model/month_calendar_header.dart';
 import 'model/month_calendar_model_mixin.dart';
 import 'model/month_grid_builder.dart';
 
@@ -75,6 +76,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
   Widget build(BuildContext context) {
     var widgetHeight = 0.0;
 
+
     if (initSelectedDateValue != widget.selectedDate) {
       selectedDate = widget.selectedDate;
     }
@@ -116,48 +118,48 @@ class _MonthCalendarState extends State<MonthCalendar> {
     List<Widget> generateDays(List<GridCell> cells) {
       List<Widget> array = [];
 
-      Color weekendsBorderColor() =>
-          Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor
-            ?? Theme.of(context).colorScheme.surface;
+      Color selectedDayBorderColor() {
+        var currentDayColor = Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor;
+
+        var surfaceColor = Theme.of(context)
+            .colorScheme
+            .surface;
+
+        if(currentDayColor != null) return currentDayColor;
+
+        return surfaceColor;
+      }
 
       BoxDecoration? getCellDayDecoration(GridCell cell) {
-        var decoration = const BoxDecoration();
-        if (cell.date.weekday == 6) {
-
-        }
-        if (cell.date.isSameDate(selectedDate)) {
-          decoration = decoration.copyWith(
-              border: Border.all(
-            color: weekendsBorderColor(),
-            width: 2.0,
-          ));
-        }
+        var decoration = BoxDecoration(
+            border: Border.all(
+              color: cell.date.isSameDate(selectedDate)
+                  ? selectedDayBorderColor()
+                  : const Color(0x00ffffff),
+              width: 2.0,
+        ));
         return decoration;
-        }
+      }
 
       for (var cell in cells) {
         var widget = Container(
           height: getGridHeight() / 6,
           padding: const EdgeInsets.all(1),
-          child: Stack(
-              children: [
-            Container(
-              decoration: getCellDayDecoration(cell),
-              child: HoveredContainer(
-                //opaque: true,
-                tap: this.widget.tap ??
-                    TapEffect(
-                        onPressed: () => selectDay(cell.date),
-                    ),
-                child: Cell(
-                    cell: cell,
-                    child: chl.any((element) => element.date.isSameDate(cell.date))
-                        ? chl.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
-                        : null),
-              ),
+          child: Container(
+            decoration: getCellDayDecoration(cell),
+            child: HoveredContainer(
+              //opaque: true,
+              tap: this.widget.tap ??
+                  TapEffect(
+                      onPressed: () => selectDay(cell.date),
+                  ),
+              child: Cell(
+                  cell: cell,
+                  child: chl.any((element) => element.date.isSameDate(cell.date))
+                      ? chl.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
+                      : null),
             ),
-
-          ]),
+          ),
         );
 
         array.add(widget);
@@ -165,7 +167,11 @@ class _MonthCalendarState extends State<MonthCalendar> {
       return array;
     }
 
-    List<TableRow> generateTableRows() {
+    List<TableRow> generateTableRows(BuildContext cntx) {
+
+      var dsd = Theme.of(cntx).colorScheme.surface;
+      var fff = Theme.of(cntx).extension<MontCalendarTheme>()?.currentDayColor;
+
       var skip = 0;
       List<TableRow> rows = [];
 
@@ -182,40 +188,39 @@ class _MonthCalendarState extends State<MonthCalendar> {
       return rows;
     }
 
-    return LayoutBuilder(builder: (ctx, monthConstraints) {
-      widgetHeight = monthConstraints.maxHeight;
-      return Theme(
-        data: Theme.of(context).copyWith(
+    return Theme(
+      data: Theme.of(context).copyWith(
           extensions: [MontCalendarTheme.light],
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-            surface: Colors.brown
-          )
-        ),
-        child: ClipRRect(
+      ),
+      child: LayoutBuilder(builder: (context, monthConstraints) {
+        widgetHeight = monthConstraints.maxHeight;
+        return ClipRRect(
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12.0),
             topRight: Radius.circular(12.0),
           ),
-          child: Table(
-            border: widget._border,
-            columnWidths: <int, TableColumnWidth>{
-              for (var indx in Iterable<int>.generate(6))
-                indx: const FlexColumnWidth()
-            },
-            defaultVerticalAlignment: TableCellVerticalAlignment.top,
-            children: generateTableRows(),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                surface: Colors.brown
+              )
+            ),
+            child: Builder(
+              builder: (context1) {
+                return Table(
+                  border: widget._border,
+                  columnWidths: <int, TableColumnWidth>{
+                    for (var indx in Iterable<int>.generate(6))
+                      indx: const FlexColumnWidth()
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.top,
+                  children: generateTableRows(context1),
+                );
+              }
+            ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
-}
-
-
-
-class MonthCalendarHeader {
-  final double? height;
-  final Color? background;
-
-  MonthCalendarHeader({this.height = 20, this.background});
 }
