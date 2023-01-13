@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:month_calendar/src/theme.dart';
 import 'package:system/system.dart';
 
-import 'model/month_grid_builder.dart';
+import '../model/month_grid_builder.dart';
 
 class Date extends StatelessWidget {
-  final GridCell cell;
+  final Day cell;
 
   const Date({super.key, required this.cell});
 
@@ -15,15 +15,15 @@ class Date extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topRight,
-      padding: const EdgeInsets.only(top: 5, right: 5),
+      //padding: const EdgeInsets.only(top: 5, right: 5),
       child: Container(
         alignment: Alignment.center,
         width: 30,
         height: 30,
         decoration: isCurrentDay(cell.date) && cell.isInMonth
             ? BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            color: Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor ?? Color.fromARGB(255, 255, 181, 185))
+                borderRadius: BorderRadius.circular(30),
+                color: Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor ?? const Color.fromARGB(255, 255, 181, 185))
             : null,
         child: Text(
           cell.date.day.toString(),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:month_calendar/src/theme.dart';
-import 'package:mytheme/component/hovered_container.dart';
-import 'package:mytheme/component/mouse_event.dart';
+import 'package:mytheme/theme.dart';
 import 'package:system/system.dart' as system;
-import 'cell_widget.dart';
+import 'package:system/system.dart';
+import 'cell/cell_widget.dart';
 import 'model/month_calendar_header.dart';
 import 'model/month_calendar_model_mixin.dart';
 import 'model/month_grid_builder.dart';
@@ -22,14 +22,19 @@ class MonthBody extends StatefulWidget implements MouseEvent {
 
   final MonthGridBuilder _calendarGridBuilder;
 
-  final Iterable<Dated>? children;
+  final List<Day> _monthDays;
+
+  final Iterable<CellContent>? children;
 
   final double height;
+  final double width;
 
   MonthBody(
       { super.key,
         this.selectedDate,
-        this.height = 0,
+        required this.height,
+        required this.width,
+        required List<Day> monthDays,
         required MonthGridBuilder calendarGridBuilder,
         HoverEffect? hoverDayEffect,
         TapEffect? tapDayEffect,
@@ -42,6 +47,7 @@ class MonthBody extends StatefulWidget implements MouseEvent {
         _selectDateCallback = selectDateCallback,
         tap = tapDayEffect,
         _border = border,
+        _monthDays = monthDays,
         _calendarGridBuilder = calendarGridBuilder;
 
   @override
@@ -49,14 +55,12 @@ class MonthBody extends StatefulWidget implements MouseEvent {
 }
 
 class _MonthBodyState extends State<MonthBody> {
-  late Iterable<Dated> chl;
   DateTime? initSelectedDateValue;
   DateTime? selectedDate;
 
   @override
   void initState() {
     super.initState();
-    chl = widget.children ?? [];
     selectedDate = widget.selectedDate;
     initSelectedDateValue = widget.selectedDate ?? DateTime(1900, 01, 01);
   }
@@ -75,15 +79,13 @@ class _MonthBodyState extends State<MonthBody> {
 
   @override
   Widget build(BuildContext context) {
-    var widgetHeight = 0.0;
-
 
     if (initSelectedDateValue != widget.selectedDate) {
       selectedDate = widget.selectedDate;
     }
 
     double getGridHeight() {
-      double result = widgetHeight -
+      double result = widget.height -
           (widget._header == null
               ? 0
               : widget._header?.height == null
@@ -116,63 +118,41 @@ class _MonthBodyState extends State<MonthBody> {
       );
     }
 
-    List<Widget> generateDays(List<GridCell> cells) {
+    List<Widget> generateDays(List<Day> cells) {
       List<Widget> array = [];
 
-      Color selectedDayBorderColor() {
-        var currentDayColor = Theme.of(context).extension<MontCalendarTheme>()?.currentDayColor;
-
-        var surfaceColor = Theme.of(context)
-            .colorScheme
-            .surface;
-
-        if(currentDayColor != null) return currentDayColor;
-
-        return surfaceColor;
-      }
-
-      BoxDecoration? getCellDayDecoration(GridCell cell) {
-        var decoration = BoxDecoration(
-            border: Border.all(
-              color: cell.date.isSameDate(selectedDate)
-                  ? selectedDayBorderColor()
-                  : const Color(0x00ffffff),
-              width: 2.0,
-            ));
-        return decoration;
-      }
-
       for (var cell in cells) {
-        var widget = Container(
+        var cellwidget = Container(
           height: getGridHeight() / 6,
           padding: const EdgeInsets.all(1),
-          child: Container(
-            decoration: getCellDayDecoration(cell),
-            child: HoveredContainer(
-              //opaque: true,
-              tap: this.widget.tap ??
-                  TapEffect(
-                    onPressed: () => selectDay(cell.date),
-                  ),
-              child: Cell(
-                  cell: cell,
-                  child: chl.any((element) => element.date.isSameDate(cell.date))
-                      ? chl.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
-                      : null),
-            ),
+          child: NewHover(
+            hover: HoverEffect(
+              animated: AnimatedEffect(
+                  isAnimated: true,
+                  duration: 250,
+              )),
+            tap: widget.tap ??
+                TapEffect(
+                  onPressed: () => selectDay(cell.date),
+                ),
+            child:
+            NewCellWidget(
+                cell: cell,
+                hover: widget.hover,
+                tap: widget.tap,
+                isSelected: widget.selectedDate != null && widget.selectedDate!.isSameDate(cell.date),
+                child: widget?.children != null && widget!.children!.any((element) => element.date.isSameDate(cell.date))
+                    ?  widget!.children!.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
+                    : null),
           ),
         );
 
-        array.add(widget);
+        array.add(cellwidget);
       }
       return array;
     }
 
-    List<TableRow> generateTableRows(BuildContext cntx) {
-
-      var dsd = Theme.of(cntx).colorScheme.surface;
-      var fff = Theme.of(cntx).extension<MontCalendarTheme>()?.currentDayColor;
-
+    List<TableRow> generateTableRows() {
       var skip = 0;
       List<TableRow> rows = [];
 
@@ -180,7 +160,7 @@ class _MonthBodyState extends State<MonthBody> {
 
       for (var _ in Iterable<int>.generate(6)) {
         var slice =
-        widget._calendarGridBuilder.getDates().skip(skip).take(7).toList();
+        widget._monthDays.skip(skip).take(7).toList();
         var days = generateDays(slice);
         var row = TableRow(children: days);
         skip += 7;
@@ -189,39 +169,23 @@ class _MonthBodyState extends State<MonthBody> {
       return rows;
     }
 
-    return Theme(
-      data: Theme.of(context).copyWith(
-        extensions: [MontCalendarTheme.light],
-      ),
-      child: LayoutBuilder(builder: (ctx, monthConstraints) {
-        widgetHeight = monthConstraints.maxHeight;
-        return ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12.0),
-            topRight: Radius.circular(12.0),
-          ),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-                colorScheme: Theme.of(context).colorScheme.copyWith(
-                    surface: Colors.brown
-                )
-            ),
-            child: Builder(
-                builder: (context1) {
-                  return Table(
-                    border: widget._border,
-                    columnWidths: <int, TableColumnWidth>{
-                      for (var indx in Iterable<int>.generate(6))
-                        indx: const FlexColumnWidth()
-                    },
-                    defaultVerticalAlignment: TableCellVerticalAlignment.top,
-                    children: generateTableRows(context1),
-                  );
-                }
-            ),
-          ),
-        );
-      }),
+    return
+      ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(12.0),
+          topRight: Radius.circular(12.0),
+        ),
+        child: Table(
+          border: widget._border,
+          columnWidths: <int, TableColumnWidth>{
+            for (var indx in Iterable<int>.generate(6))
+              indx: const FlexColumnWidth()
+          },
+          defaultVerticalAlignment: TableCellVerticalAlignment.top,
+          children: generateTableRows(),
+        ),
+
+
     );
   }
 }

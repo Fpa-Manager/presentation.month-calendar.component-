@@ -6,6 +6,7 @@ import 'model/month_calendar_model_mixin.dart';
 import 'model/month_grid_builder.dart';
 import 'month_widget_builder.dart';
 import 'theme.dart';
+import 'package:system/system.dart';
 
 class MonthGrid extends StatefulWidget implements MouseEvent {
   final MonthCalendarHeaderBody? _header;
@@ -17,7 +18,8 @@ class MonthGrid extends StatefulWidget implements MouseEvent {
   final void Function(DateTime?)? _selectDateCallback;
   final DateTime? selectedDate;
   final MonthGridBuilder _calendarGridBuilder;
-  final Iterable<Dated>? children;
+  final List<Day> _monthDays;
+  final Iterable<CellContent>? children;
 
   MonthGrid(
       { super.key,
@@ -36,6 +38,7 @@ class MonthGrid extends StatefulWidget implements MouseEvent {
         _selectDateCallback = selectDateCallback,
         tap = tapDayEffect,
         _border = border,
+        _monthDays = const Calendar().getMonth(year, month, MonthVariant.calendarGrid),
         _calendarGridBuilder = MonthGridBuilder(year, month, holidays: holidays);
   @override
   State<MonthGrid> createState() => _MonthGridState();
@@ -44,11 +47,13 @@ class MonthGrid extends StatefulWidget implements MouseEvent {
 class _MonthGridState extends State<MonthGrid> {
 
   var widgetHeight = 0.0;
+  var widgetWidth = 0.0;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, monthConstraints) {
       widgetHeight = monthConstraints.maxHeight;
+      widgetWidth = monthConstraints.maxWidth;
       return Theme(
         data: Theme.of(context).copyWith(
           extensions: [MontCalendarTheme.light],
@@ -58,6 +63,8 @@ class _MonthGridState extends State<MonthGrid> {
         ),
         child: MonthBody(
           height: widgetHeight,
+          width: widgetWidth,
+          monthDays: widget._monthDays,
           selectedDate: widget.selectedDate,
           calendarGridBuilder: widget._calendarGridBuilder,
           hoverDayEffect: widget.hover,
