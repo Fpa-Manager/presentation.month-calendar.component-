@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:month_calendar/src/theme.dart';
 import 'package:mytheme/theme.dart';
 import 'package:system/system.dart' as system;
 import 'package:system/system.dart';
 import 'cell/cell_widget.dart';
 import 'model/month_calendar_header.dart';
 import 'model/month_calendar_model_mixin.dart';
-import 'model/month_grid_builder.dart';
 
 class MonthBody extends StatefulWidget implements MouseEvent {
   final MonthCalendarHeaderBody? _header;
@@ -20,7 +18,7 @@ class MonthBody extends StatefulWidget implements MouseEvent {
   final void Function(DateTime?)? _selectDateCallback;
   final DateTime? selectedDate;
 
-  final MonthGridBuilder _calendarGridBuilder;
+  //final MonthGridBuilder _calendarGridBuilder;
 
   final List<Day> _monthDays;
 
@@ -29,13 +27,13 @@ class MonthBody extends StatefulWidget implements MouseEvent {
   final double height;
   final double width;
 
-  MonthBody(
+  const MonthBody(
       { super.key,
         this.selectedDate,
         required this.height,
         required this.width,
         required List<Day> monthDays,
-        required MonthGridBuilder calendarGridBuilder,
+        //required MonthGridBuilder calendarGridBuilder,
         HoverEffect? hoverDayEffect,
         TapEffect? tapDayEffect,
         void Function(DateTime?)? selectDateCallback,
@@ -47,8 +45,8 @@ class MonthBody extends StatefulWidget implements MouseEvent {
         _selectDateCallback = selectDateCallback,
         tap = tapDayEffect,
         _border = border,
-        _monthDays = monthDays,
-        _calendarGridBuilder = calendarGridBuilder;
+        //_calendarGridBuilder = calendarGridBuilder,
+        _monthDays = monthDays;
 
   @override
   State<MonthBody> createState() => _MonthBodyState();
@@ -141,8 +139,8 @@ class _MonthBodyState extends State<MonthBody> {
                 hover: widget.hover,
                 tap: widget.tap,
                 isSelected: widget.selectedDate != null && widget.selectedDate!.isSameDate(cell.date),
-                child: widget?.children != null && widget!.children!.any((element) => element.date.isSameDate(cell.date))
-                    ?  widget!.children!.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
+                child: widget.children != null && widget.children!.any((element) => element.date.isSameDate(cell.date))
+                    ?  widget.children!.firstWhere((element) => element.date.isSameDate(cell.date)) as Widget
                     : null),
           ),
         );

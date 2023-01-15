@@ -6,7 +6,6 @@ import 'package:system/system.dart' as system;
 import 'cell_widget_info_inherited_widget.dart';
 import 'content_widget.dart';
 import 'day_widget.dart';
-import '../model/month_grid_builder.dart';
 import '../theme.dart';
 import 'dart:math';
 
@@ -35,8 +34,8 @@ class NewCellWidget extends StatelessWidget implements MouseEvent {
     var widgetWidth = 0.0;
 
     double getCellRadian(){
-      var a = pow(widgetHeight!, 2);
-      var b = pow(widgetWidth!, 2);
+      var a = pow(widgetHeight, 2);
+      var b = pow(widgetWidth, 2);
       var value = sqrt(a+b);
       return value;
     }
@@ -69,33 +68,25 @@ class NewCellWidget extends StatelessWidget implements MouseEvent {
       return decoration;
     }
 
-    void setUpHoverInfoInCellWidgetInfo(BuildContext context){
-      print("Try to set hover info");
-      var info = CellWidgetInfo.of(context);
-      if(info != null) info.isHover = true;
-      print("Info is ${CellWidgetInfo.of(context)?.isHover}");
-    }
-    void setOutHoverInfoInCellWidgetInfo(BuildContext context){
-      var info = CellWidgetInfo.of(context);
-      if(info != null) info.isHover = false;
-    }
+    var isHovered = false;
 
     return LayoutBuilder(
         builder: (context, cellConstraints) {
           widgetHeight = cellConstraints.maxHeight;
           widgetWidth = cellConstraints.maxWidth;
-          return CellWidgetInfo(
-            isSelected: isSelected,
-            width: widgetWidth,
-            height: widgetHeight,
-            child: Container(
-              decoration: getCellDayDecoration(cell),
-              child: OveredContainer(
-                hover: HoverEffect(
-                  decoration: const BoxDecoration(),
-                  onEnterFunction: () => setUpHoverInfoInCellWidgetInfo(context),
-                  onExitFunction: () => setOutHoverInfoInCellWidgetInfo(context),
-                ),
+          return OveredContainer(
+            hover: HoverEffect(
+              decoration: const BoxDecoration(),
+              onEnterFunction: () => isHovered = true,
+              onExitFunction: () => isHovered = false,
+            ),
+            child: CellWidgetInfo(
+              isSelected: isSelected,
+              width: widgetWidth,
+              height: widgetHeight,
+              isHover: isHovered,
+              child: Container(
+                decoration: getCellDayDecoration(cell),
                 child: NewHover(
                   hover: hover,
                   tap: tap,

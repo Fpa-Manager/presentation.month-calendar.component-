@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class CellWidgetInfo extends InheritedWidget {
-  CellWidgetInfo({
+  const CellWidgetInfo({
     super.key,
     required this.isSelected,
+    required this.isHover,
     required this.width,
     required this.height,
     required Widget child,
@@ -12,8 +13,7 @@ class CellWidgetInfo extends InheritedWidget {
   final bool isSelected;
   final double width;
   final double height;
-
-  bool isHover = false;
+  final bool isHover;
 
   static CellWidgetInfo? of(BuildContext context) {
     var item = context.dependOnInheritedWidgetOfExactType<CellWidgetInfo>();
