@@ -4,10 +4,8 @@ import 'package:mytheme/component/mouse_event.dart';
 import 'package:system/system.dart' as system;
 import 'package:system/system.dart';
 import 'cell/cell_widget.dart';
-import 'model/month_calendar_header.dart';
-import 'model/month_calendar_model_mixin.dart';
 
-class DummCalendarBuilder extends StatefulWidget {
+class MonthCalendarBuilder extends StatefulWidget {
   final MonthCalendarHeader? _header;
   final TableBorder? _border;
   final List<Day> _monthDays;
@@ -19,7 +17,7 @@ class DummCalendarBuilder extends StatefulWidget {
   final HoverEffect? hover;
   final TapEffect? tap;
 
-  const DummCalendarBuilder(
+  const MonthCalendarBuilder(
       {super.key,
         required this.height,
         required this.width,
@@ -35,10 +33,10 @@ class DummCalendarBuilder extends StatefulWidget {
         _monthDays = monthDays;
 
   @override
-  State<DummCalendarBuilder> createState() => _DummCalendarBuilderState();
+  State<MonthCalendarBuilder> createState() => _MonthCalendarBuilderState();
 }
 
-class _DummCalendarBuilderState extends State<DummCalendarBuilder> {
+class _MonthCalendarBuilderState extends State<MonthCalendarBuilder> {
   @override
   void initState() {
     super.initState();

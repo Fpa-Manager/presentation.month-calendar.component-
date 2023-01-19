@@ -6,7 +6,7 @@ import 'month_widget_builder.dart';
 import 'theme.dart';
 import 'package:system/system.dart';
 
-class DummMonthCalendar extends StatelessWidget {
+class MonthCalendar extends StatelessWidget {
   final MonthCalendarHeader? _header;
   final TableBorder? _border;
   final List<Day> _monthDays;
@@ -16,7 +16,7 @@ class DummMonthCalendar extends StatelessWidget {
   final HoverEffect? hover;
   final TapEffect? tap;
 
-  DummMonthCalendar(
+  MonthCalendar(
       {super.key,
         required int year,
         required int month,
@@ -43,7 +43,7 @@ class DummMonthCalendar extends StatelessWidget {
         data: Theme.of(context).copyWith(
             extensions: [MontCalendarTheme.light],
             colorScheme: Theme.of(context).colorScheme.copyWith(surface: Colors.brown)),
-        child: DummCalendarBuilder(
+        child: MonthCalendarBuilder(
           height: widgetHeight,
           width: widgetWidth,
           monthDays: _monthDays,
