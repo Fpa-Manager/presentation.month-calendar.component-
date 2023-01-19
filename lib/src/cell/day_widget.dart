@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:month_calendar/src/theme.dart';
 import 'package:system/system.dart';
 
-import '../model/month_grid_builder.dart';
-
 class Date extends StatelessWidget {
   final Day cell;
 
@@ -15,7 +13,6 @@ class Date extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topRight,
-      //padding: const EdgeInsets.only(top: 5, right: 5),
       child: Container(
         alignment: Alignment.center,
         width: 30,
@@ -29,7 +26,7 @@ class Date extends StatelessWidget {
           cell.date.day.toString(),
           style: cell.isInMonth == false
               ? TextStyle(color: Colors.grey.shade400, fontSize: 14)
-              : cell.isWeekend || cell.isHoliday!
+              : cell.isWeekend || cell.isHoliday
               ? const TextStyle( color: Colors.red, fontSize: 18)
               : const TextStyle( color: Colors.black, fontSize: 18),
         ),

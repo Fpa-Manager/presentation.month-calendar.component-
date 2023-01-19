@@ -4,7 +4,7 @@ class CellWidgetInfo extends InheritedWidget {
   const CellWidgetInfo({
     super.key,
     required this.isSelected,
-    required this.isHover,
+    required this.isHovered,
     required this.width,
     required this.height,
     required Widget child,
@@ -13,7 +13,7 @@ class CellWidgetInfo extends InheritedWidget {
   final bool isSelected;
   final double width;
   final double height;
-  final bool isHover;
+  final bool isHovered;
 
   static CellWidgetInfo? of(BuildContext context) {
     var item = context.dependOnInheritedWidgetOfExactType<CellWidgetInfo>();
@@ -22,8 +22,9 @@ class CellWidgetInfo extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant CellWidgetInfo oldWidget) {
-    return false; // isSelected != oldWidget.isSelected
-                      // || width != oldWidget.width
-                      // || height != oldWidget.height;
+    return isSelected != oldWidget.isSelected
+           || isHovered != oldWidget.isHovered
+           || width != oldWidget.width
+           || height != oldWidget.height;
   }
 }

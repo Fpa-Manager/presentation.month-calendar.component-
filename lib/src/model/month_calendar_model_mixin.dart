@@ -5,7 +5,7 @@ import '../cell/cell_widget_info_inherited_widget.dart';
 mixin CellContent {
   late final DateTime date;
 
-  bool isHovered(BuildContext context) => CellWidgetInfo.of(context)?.isHover ?? false;
+  bool getIsHovered(BuildContext context) => CellWidgetInfo.of(context)?.isHovered ?? false;
 
   bool getIsSelected(BuildContext context) => CellWidgetInfo.of(context)?.isSelected ?? false;
 
